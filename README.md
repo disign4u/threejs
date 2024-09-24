@@ -14,6 +14,10 @@ Currently, two official plugins are available:
 rm -rf node_modules/.vite/
 npm cache clean --force
 npm i && npm run dev
+unter windows hat das geholfen
+/node_modules/.bin/vite dasSystem kann den angegebenen Pfad nicht finden.
+
+npx vite
 
 https://r3f.docs.pmnd.rs/getting-started/examples
 ## gsap
