@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "../threejs_backup/node_modules/.bin/vite",
-    "build": "../threejs_backup/node_modules/.bin/vite build",
-    "lint": "../threejs_backup/node_modules/.bin/eslint .",
-    "preview": "../threejs_backup/node_modules/.bin/vite preview"
+    "dev": "../threejs/node_modules/.bin/vite",
+    "build": "../threejs/node_modules/.bin/vite build",
+    "lint": "../threejs/node_modules/.bin/eslint .",
+    "preview": "../threejs/node_modules/.bin/vite preview"
   },
   "dependencies": {
     "@gsap/react": "^2.1.1",
