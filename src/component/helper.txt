@@ -1,0 +1,33 @@
+Insert
+// ParentComponent.js
+import React from 'react';
+import ChildComponent from './ChildComponent';
+import { useGLTF } from '@react-three/drei';
+
+const ParentComponent = () => {
+  const { nodes } = useGLTF('/path/to/model.glb');
+
+  return (
+    <div>
+      <ChildComponent nodes={nodes} />
+    </div>
+  );
+};
+
+export default ParentComponent;
+
+// ChildComponent.js
+import React from 'react';
+
+const ChildComponent = ({ nodes }) => {
+  // Access the nodes object here
+  console.log(nodes);
+
+  return (
+    <div>
+      {/* Child component content */}
+    </div>
+  );
+};
+
+export default ChildComponent;

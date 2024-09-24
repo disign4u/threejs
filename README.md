@@ -32,3 +32,11 @@ react,
 
 add rule
 'react/no-unknown-property': 'off',
+352
+
+I faced a similar issue on my Arch Linux machine. Apparently my issue was an HTTP buffer issue. I got it to work by using
+
+git config http.postBuffer 524288000
+followed by
+
+git pull && git push
