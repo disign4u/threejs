@@ -30,8 +30,90 @@ export const Hero = (props
             min: -20,
             max: 20,
             step: 0.5
+        },meshX : {
+            label: 'Mesh x',
+            value:0,
+            min: -10,
+            max: 10,
+            step: 0.5
+        },meshY : {
+            label: 'Mesh y',
+            value:0,
+            min: -10,
+            max: 10,
+            step: 0.5
+        },meshZ : {
+            label: 'Mesh z',
+            value:0,
+            min: -10,
+            max: 10,
+            step: 0.5
         }
     })
+
+    const hitMeshPoints = [
+        {
+            color: 'red',
+            position: [2, 7, 0],
+            text: {
+                scale:[5, 5, .5],
+                position:[5,1,1],
+                anchorX:"left",
+                anchorY:"middle",
+                label: "1. diagonal zum Hals",
+            }
+        }, {
+            color: 'red',
+            position: [4, 4.5, -0.5],
+            text: {
+                scale:[5, 5, .5],
+                position:[5,1,1],
+                anchorX:"left",
+                anchorY:"middle",
+                label: "3. waagrecht zum Ellenbogen",
+            }
+        },{
+            color: 'red',
+            position: [3, -1.5, 0],
+            text: {
+                scale:[5, 5, .5],
+                position:[5,1,1],
+                anchorX:"left",
+                anchorY:"middle",
+                label: "5. Schlag zum Knie",
+            }
+        }, {
+            color: 'red',
+            position: [1.7, 5.5, 1],
+            text: {
+                scale:[5, 5, .5],
+                position:[5,1,1],
+                anchorX:"left",
+                anchorY:"middle",
+                label: "7. Stich zur Brust",
+            }
+        }, {
+            color: 'red',
+            position: [1, 8.5, 1],
+            text: {
+                scale:[5, 5, .5],
+                position:[5,1,1],
+                anchorX:"left",
+                anchorY:"middle",
+                label: "9. Schlag auf den Kopf",
+            }
+        }, {
+            color: 'red',
+            position: [1, 2.5, 1.5],
+            text: {
+                scale:[5, 5, .5],
+                position:[5,1,1],
+                anchorX:"left",
+                anchorY:"middle",
+                label: "11.Gerader Stich zum Bauch",
+            }
+        },
+    ]
 
     //const [active, setActive] = useState(false)
     //console.log(HumanPoints.nodes);
@@ -53,33 +135,48 @@ export const Hero = (props
                 <Canvas className="threejs__canvas" ref={refCanvas}>
                     <Suspense fallback={<Loading/>}>
                         <PerspectiveCamera makeDefault position={[0, 0, 30]}/>
-                        <MeinAvatar
-                            scale={controls.scale}
-                            position={[controls.positionX, controls.positionY, 0]}
-                            rotation={[0, 0, 0]}/>
-                        <mesh
-                            visible={hitOne ? true : false}
-                            position={[1, 5,0]}
-                            scale={0.15}>
-                            <sphereGeometry args={[2, 12, 12]}/>
-                            <meshBasicMaterial color={'red'}/>
-                            <Text
-                                scale={[5, 5, .5]}
-                                position={[5,1,1]}
-                                color="red" // default
-                                anchorX="left" // default
-                                anchorY="middle" // default
-                            >
-                                1. diagonal zum Hals
-                            </Text>
-                        </mesh>
-
-                        <mesh
-                            position={[-1, 5, 0]}
-                            scale={0.15}>
-                            <sphereGeometry args={[2, 12, 12]}/>
-                            <meshBasicMaterial color={'orange'}/>
-                        </mesh>
+                        <group  position={[controls.positionX, controls.positionY, 0]} scale={controls.scale} >
+                            <MeinAvatar scale={8}
+                                position={[1, -6, 0]}
+                                rotation={[0, 0, 0]}/>
+                            <mesh
+                                visible={false}
+                                position={[
+                                    controls.meshX,
+                                    controls.meshY,
+                                    controls.meshZ
+                                ]}
+                                scale={0.125}>
+                                <sphereGeometry args={[2, 12, 12]}/>
+                                <meshLambertMaterial color={'red'}/>
+                                <Text
+                                    scale={[5, 5, .5]}
+                                    position={[5,1,1]}
+                                    color="red"
+                                    anchorX="left"
+                                    anchorY="middle">
+                                    dummy
+                                </Text>
+                            </mesh>
+                            {hitMeshPoints.map((hitMeshPoint, index) => (
+                                <mesh
+                                    key={index}
+                                    position={hitMeshPoint.position}
+                                    scale={.125}
+                                    visible={hitOne ? true : false}>
+                                    <sphereGeometry args={[2, 12, 12]}/>
+                                    <meshLambertMaterial color={hitMeshPoint.color}/>
+                                    <Text
+                                        scale={hitMeshPoint.text.scale}
+                                        position={hitMeshPoint.text.position}
+                                        anchorX={hitMeshPoint.text.anchorX}
+                                        anchorY={hitMeshPoint.text.anchorY}
+                                        color={hitMeshPoint.color}>
+                                        {hitMeshPoint.text.label}
+                                    </Text>
+                                </mesh>
+                            ))}
+                        </group>
                         <ambientLight intensity={0.5}/>
                         <directionalLight position={[10, 10, 10]} intensity={3}/>
                     </Suspense>
