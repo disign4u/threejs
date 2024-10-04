@@ -14,21 +14,21 @@ export const Hero = (props
     const controls = useControls({
         scale : {
             label: 'Größe',
-            value: 8,
+            value: 1,
             min: 0,
             max: 10,
             step: 0.5
         },positionX : {
             label: 'Position X',
             value: 0,
-            min: -10,
-            max: 10,
+            min: -100,
+            max: 100,
             step: 0.5
         },positionY : {
             label: 'Position Y',
-            value: -8,
-            min: -20,
-            max: 20,
+            value: 0,
+            min: -100,
+            max: 100,
             step: 0.5
         },meshX : {
             label: 'Mesh x',
@@ -180,7 +180,7 @@ export const Hero = (props
                         <ambientLight intensity={0.5}/>
                         <directionalLight position={[10, 10, 10]} intensity={3}/>
                     </Suspense>
-                    <OrbitControls/>
+                    <OrbitControls />
                 </Canvas>
             </div>
             <ul className="navbar">
