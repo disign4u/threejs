@@ -1,13 +1,11 @@
-import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import {useRef} from 'react';
+import {useFrame} from '@react-three/fiber';
 
-const HeroCamera = ({children}) => {
-    const group = useRef();
-    console.log(children);
-
+const HeroCamera = ({children, ...props}) => {
+    const groupCamera = useRef();
     useFrame((state, delta) => {
-
+        props.isRotating ? groupCamera.current.rotation.y += 0.25 * delta : groupCamera.current.rotation.y = 0;
     })
-    return <group ref={group}>{children}</group>;
+    return <group ref={groupCamera}>{children}</group>;
 }
 export default HeroCamera;
