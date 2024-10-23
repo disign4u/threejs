@@ -1,5 +1,5 @@
 
-import React, {Suspense, useRef, useState,createContext} from "react";
+import React, {Suspense, useRef, useState,createContext,useEffect,Component } from "react";
 import {Canvas, useFrame } from "@react-three/fiber";
 import {OrbitControls, Text, PerspectiveCamera } from '@react-three/drei'
 import Loading from "../component/Loader.jsx";
@@ -9,6 +9,64 @@ import HeroCamera from "./HeroCamera.jsx";
 import './hero.css';
 import './style.css';
 
+const song = new Audio("budoka/song.mp3");
+
+const AudioComponent = () => {
+    const audioRef = useRef(song);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState();
+
+    const toggleAudio = () => {
+        if (isPlaying) {
+            audioRef.current.pause();
+            //audioRef.current.currentTime = 0;
+        } else {
+            audioRef.current.currentTime = 0;
+            audioRef.current.volume = 0.25;
+            audioRef.current.play().catch((error) => {
+                console.log("Audio konnte nicht abgespielt werden:", error);
+            });
+            audioRef.current.ontimeupdate = () => {
+                setCurrentTime(audioRef.current.currentTime);
+            };
+        }
+
+        setIsPlaying(!isPlaying);
+    };
+
+    return (
+        <div>
+            <button onClick={toggleAudio}>
+                {isPlaying ? "Stop" : "Play"}
+                <time>{audioRef.current.currentTime.toFixed(2)}</time>{" "}
+                {/* Format time to 2 decimals */}
+            </button>
+        </div>
+    );
+};
+
+const Box = (props) =>{
+// This reference will give us direct access to the mesh
+    const meshRef = useRef()
+// Set up state for the hovered and active state
+    const [hovered, setHover] = useState(false)
+    const [active, setActive] = useState(false)
+// Subscribe this component to the render-loop, rotate the mesh every frame
+    useFrame((state, delta) => (meshRef.current.rotation.x += delta))
+// Return view, these are regular three.js elements expressed in JSX
+    return (
+        <mesh
+            {...props}
+            ref={meshRef}
+            scale={active ? 1.5 : 1}
+            onClick={(event) => setActive(!active)}
+            onPointerOver={(event) => setHover(true)}
+            onPointerOut={(event) => setHover(false)}>
+            <boxGeometry args={[1, 1, 1]} />
+            <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+        </mesh>
+    )
+}
 
 export const Hero = (props
 ) => {
@@ -21,7 +79,7 @@ export const Hero = (props
             step: 0.5
         },positionX : {
             label: 'Position X',
-            value: 0,
+            value: -1,
             min: -100,
             max: 100,
             step: 0.5
@@ -33,6 +91,7 @@ export const Hero = (props
             step: 0.5
         }
     })
+
     const hitMeshPoints = [
         {
             color: 'red',
@@ -156,30 +215,85 @@ export const Hero = (props
             }
         },
     ]
+
     const refCanvas = useRef();
     const refGroup = useRef();
-    const [hitOne, setHitOne] = useState(true);
+    const refAudio = useRef();
+    const [hitOne, setHitOne] = useState(false);
     const [showText, setShowText] = useState(true);
     const [isRotating, setIsRotating] = useState(true);
-    ;
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [timer, setTimer] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
 
-    const getMeshes = () => {
-        const meshes = refGroup.current.children.filter((child) => child.type === 'Mesh');
-        console.log(meshes);
+    const meshes = useRef([]); // Array für die Meshes
+    const timeline = useRef(null);
+
+    const getMeshes = (id) => {
+        const meshesPoints = refGroup.current.children.filter((child) => child.type === 'Mesh');
+        meshesPoints[id].visible = true;
     }
+
     const HeroContext = createContext();
+
+    const handleEvent = ()=> {
+        console.log(refAudio.current);
+    }
+
+    function Target({ position }) {
+        const meshRef = useRef();
+
+        useEffect(() => {
+            gsap.to(meshRef.current.scale, {
+                x: 1.2,
+                y: 1.2,
+                z: 1.2,
+                duration: 0.5, // Anpassbar an die Schwierigkeit
+                repeat: -1,
+                yoyo: true,
+                delay: Math.random() * 2 // Zufälliger Startzeitpunkt
+            });
+        }, []);
+
+        return (
+            <mesh ref={meshRef} position={position}>
+                <sphereGeometry {...sphereGeometryProps} />
+                <meshStandardMaterial color="red" />
+            </mesh>
+        );
+    }
+
+    useEffect(() => {
+        console.log('useEffect');
+        const interval = setInterval(() => {
+            if (refAudio.current) {
+                setCurrentTime(refAudio.current.currentTime);
+            }
+        }, 100); // Aktualisiere alle 100ms
+
+        //
+
+        // Erstelle 12 Meshes und speichere sie in meshes.current
+        for (let i = 0; i < 12; i++) {
+            console.log(i)
+        }
+
+        // Erstelle eine Timeline
+        return () => clearInterval(interval);
+    }, []);
     return (
+
         <section className="threejs" id="home">
-            <Leva  hideTitleBar={true}
-                   collapsed={true}
-                   hidden={false} />
+            <Leva hideTitleBar={true}
+                  collapsed={true}
+                  hidden={false}/>
 
             <div className="threejs__container">
-
                 <Canvas className="threejs__canvas" ref={refCanvas}>
                     <Suspense fallback={<Loading/>}>
                         <PerspectiveCamera makeDefault position={[0, 0, 30]}/>
                         <HeroCamera isRotating={isRotating}>
+
                             <group position={[controls.positionX, controls.positionY, 0]} scale={controls.scale}
                                    ref={refGroup}>
                                 <BudokaAvatar scale={8}
@@ -213,20 +327,27 @@ export const Hero = (props
                     <OrbitControls/>
                 </Canvas>
             </div>
+
             <ul className="navbar">
                 <li>
-                    <button id="hit_1" onClick={() => setHitOne(!hitOne)}>Ausblenden</button>
+                    <AudioComponent />
+                </li>
+                <li>
+                    <button id="hit_1" onClick={() => setTimer(0)}>Start</button>
                 </li>
                 <li>
                     <button id="hit_2" onClick={() => setShowText(!showText)}>Text</button>
                 </li>
                 <li>
-                    <button id="hit_3" onClick={() => getMeshes()}>Meshes</button>
+                    <button id="hit_3" onClick={() => getMeshes(1)}>Meshes</button>
                 </li>
                 <li>
                     <button id="hit_3" onClick={() => setIsRotating(!isRotating)}>Rotate</button>
                 </li>
+                <audio controls={true} src="/threejs/budoka/workout.mp3" ref={refAudio} onPlay={handleEvent}></audio>
+                <li>{currentTime}</li>
             </ul>
         </section>
     )
+
 }
