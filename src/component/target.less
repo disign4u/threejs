@@ -27,18 +27,32 @@
   list-style: none;
   padding: .5em 1em;
   margin:0;
-  
+}
+
+.workout {
+  display: inline-flex;
+  align-items: center;
+  gap: .1em;
   button {
-    display: block;
-    padding: .5em 1em;
-    color: orange;
-    text-decoration: none;
-    &:focus {
-      outline: 1px solid orange;
-    }
+    min-height:40px;
+    min-width: 30px;
+  }
+  time {
+    min-width: 45px;
   }
 }
 
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: .25em;
+  padding: .5em;
+  color: orange;
+  text-decoration: none;
+  &:focus {
+    outline: 1px solid orange;
+  }
+}
 audio {
   position: fixed;
   inset: 20px auto auto 20px;

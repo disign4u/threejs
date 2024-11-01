@@ -14,42 +14,9 @@ import { FaPlay, FaStop, FaPause, FaBackward } from "react-icons/fa";
 import './target.css'
 
 const song = new Audio("budoka/workout.mp3");
-const AudioComponent = () => {
-    const audioRef = useRef(song);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState();
+let meshes = [];
 
-    const toggleAudio = () => {
-        if (isPlaying) {
-            audioRef.current.pause();
-            //audioRef.current.currentTime = 0;
-        } else {
-            audioRef.current.currentTime = 0;
-            audioRef.current.volume = 0.25;
-            audioRef.current.play().catch((error) => {
-                console.log("Audio konnte nicht abgespielt werden:", error);
-            });
-            audioRef.current.ontimeupdate = () => {
-                setCurrentTime(audioRef.current.currentTime);
-            };
-        }
-
-        setIsPlaying(!isPlaying);
-    };
-
-    return (
-        <div>
-            <button onClick={toggleAudio}>
-                {isPlaying ? "Stop" : "Play"}
-                <time>{audioRef.current.currentTime.toFixed(2)}</time>{" "}
-                {/* Format time to 2 decimals */}
-            </button>
-        </div>
-    );
-};
-
-export const Target = (props
-) => {
+export const Target = (props) => {
 
     const controls = useControls({
         scale : {
@@ -76,23 +43,19 @@ export const Target = (props
     const refGroup = useRef();
     const refAudio = useRef();
     const [hitOne, setHitOne] = useState(true);
-    const [showText, setShowText] = useState(true);
+    const [showText, setShowText] = useState(false);
     const [isRotating, setIsRotating] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const [timer, setTimer] = useState(0);
-    const [currentTime, setCurrentTime] = useState(0);
 
-    const meshes = useRef([]);
     // Array für die Meshes
-    const timeline = useRef(null);
-
     const getMeshes = (id) => {
-        const meshesPoints = refGroup.current.children.filter((child) => child.type === 'Mesh');
-        meshesPoints[id].visible = true;
+        meshes = refGroup.current.children.filter((child) => child.type === 'Mesh');
     }
 
-    const handleEvent = ()=> {
-
+    const onPlaying = (e)=> {
+        return;
+        console.log(e);
     }
 
     const Target = ({position}) => {
@@ -119,16 +82,55 @@ export const Target = (props
         );
     }
 
+    const Workout = () => {
+        const audioRef = useRef(song);
+        const toggleWorkout = () => {
+            if (isPlaying) {
+                audioRef.current.pause();
+              setIsPlaying(false);
+            } else {
+                setIsPlaying(true);
+                audioRef.current.play().catch((error) => {
+                    console.log("Audio konnte nicht abgespielt werden:", error);
+                });
+                audioRef.current.ontimeupdate = () => {
+                    setTimer(audioRef.current.currentTime);
+                };
+            }
+        };
+
+        const resetWorkout = () => {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+            timer = 0;
+        };
+
+        return (
+            <div className="workout">
+                <button>
+                    <FaBackward color="#fff" size="10" onClick={() => resetWorkout()}/>
+                </button>
+                <button>
+                    Training: <time>{timer.toFixed(2)}</time>
+                </button>
+                <button  onClick={()  => toggleWorkout()}>
+                    {isPlaying ? <FaPause color="#fff" size="10"/> : <FaPlay color="#fff" size="10"/> }
+                </button>
+            </div>
+        );
+    };
 
     return (
 
         <section className="target" id="home">
-            <audio controls={true} src="/threejs/budoka/song.mp3" ref={refAudio} onPlay={handleEvent}></audio>
+            <audio controls={true} src="/threejs/budoka/song.mp3" ref={refAudio} onPlay={onPlaying}></audio>
+
             <Leva hideTitleBar={true}
                   collapsed={true}
-                  hidden={false}/>
+                  hidden={true}/>
 
             <div className="target__container">
+
                 <Canvas className="target__canvas" ref={refCanvas}>
                     <Suspense fallback={<Loading/>}>
                         <PerspectiveCamera makeDefault position={[0, 0, 30]}/>
@@ -172,29 +174,26 @@ export const Target = (props
 
             <ul className="navbar">
                 <li>
-                    <AudioComponent/>
+                    <Workout/>
                 </li>
                 <li>
-                    <button id="hit_1" onClick={() => setTimer(0)}>Start</button>
-                </li>
-                <li>
-                    <button id="hit_2" onClick={() => setShowText(!showText)}>Text</button>
-                </li>
-                <li>
-                    <button id="hit_3" onClick={() => getMeshes(1)}>Meshes</button>
-                </li>
-                <li>
-                    <button id="hit_3" onClick={() => setIsRotating(!isRotating)}>
-
-                        {isRotating ? "Stop Drehen" : "Start Drehen"}
+                    <button id="hit_2" onClick={() => setShowText(!showText)}>
+                        {showText
+                            ? <IoMdCheckboxOutline color="#fff" size="20" onClick={() => setShowText(!showText)}/>
+                            :
+                            <MdCheckBoxOutlineBlank color="#fff" size="20" onClick={() => setShowText(!showText)}/>
+                        } Text
                     </button>
                 </li>
                 <li>
-                    <MdCheckBoxOutlineBlank />
-                    <IoMdCheckboxOutline />
-                    <FaPlay/>
-                    <FaPause/>
-                    <FaBackward/>
+                    <button id="hit_3" onClick={() => setIsRotating(!isRotating)}>
+                        {isRotating
+                            ? <IoMdCheckboxOutline color="#fff" size="20" onClick={() => setIsRotating(!isRotating)}/>
+                            :
+                            <MdCheckBoxOutlineBlank color="#fff" size="20" onClick={() => setIsRotating(!isRotating)}/>
+                        }
+                        Drehen
+                    </button>
                 </li>
             </ul>
         </section>

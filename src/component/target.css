@@ -26,13 +26,27 @@
   padding: 0.5em 1em;
   margin: 0;
 }
-.navbar button {
-  display: block;
-  padding: 0.5em 1em;
+.workout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1em;
+}
+.workout button {
+  min-height: 40px;
+  min-width: 30px;
+}
+.workout time {
+  min-width: 45px;
+}
+button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.5em;
   color: orange;
   text-decoration: none;
 }
-.navbar button:focus {
+button:focus {
   outline: 1px solid orange;
 }
 audio {
