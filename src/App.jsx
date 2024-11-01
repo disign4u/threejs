@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import {Hero} from "./component/Hero.jsx";
+import {Target} from "./component/Target.jsx";
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <Hero/>
+      <Target/>
     </>
   )
 }
