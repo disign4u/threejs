@@ -32,27 +32,39 @@
 .workout {
   display: inline-flex;
   align-items: center;
-  gap: .1em;
-  button {
-    min-height:40px;
-    min-width: 30px;
-  }
+  gap: .4em;
   time {
     min-width: 45px;
+  }
+  &__timer {
+    pointer-events: none;
+    user-select: none;
   }
 }
 
 button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-height:40px;
+  min-width: 30px;
   gap: .25em;
   padding: .5em;
   color: orange;
   text-decoration: none;
+  background: #242424;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  appearance: none;
   &:focus {
     outline: 1px solid orange;
   }
+  svg {
+      pointer-events: none;
+  }
 }
+
 audio {
   position: fixed;
   inset: 20px auto auto 20px;

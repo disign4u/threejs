@@ -1,44 +1,21 @@
 
-import {Suspense, useRef, useState,useEffect } from "react";
-import {Canvas, useFrame } from "@react-three/fiber";
+import {Suspense, useRef, useState , useEffect} from "react";
+import {Canvas } from "@react-three/fiber";
 import {OrbitControls, Text, PerspectiveCamera } from '@react-three/drei'
+import {gsap} from "gsap";
 import Loading from "../component/Loader.jsx";
-import {Leva, useControls} from "leva";
 import BudokaAvatar from "./BudokaAvatar.jsx";
 import TargetCamera from "./TargetCamera.jsx";
 import {hitMeshPoints} from "../constants/index.js";
 import { MdCheckBoxOutlineBlank } from "react-icons/md";
 import { IoMdCheckboxOutline } from "react-icons/io";
-import { FaPlay, FaStop, FaPause, FaBackward } from "react-icons/fa";
+import { FaPlay, FaStop, FaPause } from "react-icons/fa";
 
 import './target.css'
 
 const song = new Audio("budoka/workout.mp3");
-let meshes = [];
 
 export const Target = (props) => {
-
-    const controls = useControls({
-        scale : {
-            label: 'Größe',
-            value: 1,
-            min: 0,
-            max: 10,
-            step: 0.5
-        },positionX : {
-            label: 'Position X',
-            value: -1,
-            min: -100,
-            max: 100,
-            step: 0.5
-        },positionY : {
-            label: 'Position Y',
-            value: 0,
-            min: -100,
-            max: 100,
-            step: 0.5
-        }
-    })
     const refCanvas = useRef();
     const refGroup = useRef();
     const refAudio = useRef();
@@ -46,38 +23,59 @@ export const Target = (props) => {
     const [showText, setShowText] = useState(false);
     const [isRotating, setIsRotating] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [timer, setTimer] = useState(0);
+    let [timer, setTimer] = useState(0);
+    let meshes = []; // Array für die Meshes
 
-    // Array für die Meshes
-    const getMeshes = (id) => {
-        meshes = refGroup.current.children.filter((child) => child.type === 'Mesh');
-    }
 
     const onPlaying = (e)=> {
         return;
-        console.log(e);
     }
 
-    const Target = ({position}) => {
-        const meshRef = useRef();
+    const getMeshes = () => {
+        if (meshGroup.current) {
+            meshes = meshGroup.current.children.filter((child) => child.type === 'Mesh');
+        }
+    }
 
-        useEffect(() => {
-            gsap.to(meshRef.current.scale, {
-                x: 0,
-                y: 0,
-                z: 0,
+    const objShake = (mesh_id) => {
+        if(!meshes.length) getMeshes();
+
+        const obj = meshes[mesh_id];
+        if (obj) {
+            gsap.to(obj.scale, {
+                x: 1,
+                y: 1,
+                z: 1,
                 opacity: 1,
-                duration: 0.5, // Anpassbar an die Schwierigkeit
+                duration: 0.25, // Anpassbar an die Schwierigkeit
                 repeat: 1,
                 yoyo: true,
-                delay: Math.random() * 2 // Zufälliger Startzeitpunkt
+                delay: 0
+            });
+        }
+    }
+
+    const Meshes = ({position}) => {
+        const meshRef = useRef();
+        useEffect(() => {
+            gsap.to(meshRef.current.scale, {
+                x: .35,
+                y: .35,
+                z: .35,
+                opacity: 1,
+                duration: 0.15, // Anpassbar an die Schwierigkeit
+                repeat: 5,
+                yoyo: true,
+                delay: Math.random() * 2,
+                onComplete: () => {
+                    meshRef.current.scale.set(0, 0, 0);
+                }
             });
         }, []);
-
         return (
-            <mesh ref={meshRef} position={position} scale={.2}>
+            <mesh ref={meshRef} position={position} scale={0}>
                 <sphereGeometry args={[2, 12, 12]}/>
-                <meshStandardMaterial color="red"/>
+                <meshStandardMaterial color="green"/>
             </mesh>
         );
     }
@@ -87,7 +85,7 @@ export const Target = (props) => {
         const toggleWorkout = () => {
             if (isPlaying) {
                 audioRef.current.pause();
-              setIsPlaying(false);
+                setIsPlaying(false);
             } else {
                 setIsPlaying(true);
                 audioRef.current.play().catch((error) => {
@@ -100,17 +98,20 @@ export const Target = (props) => {
         };
 
         const resetWorkout = () => {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            timer = 0;
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+                setTimer(0);
+                setIsPlaying(false);
+            }
         };
 
         return (
             <div className="workout">
-                <button>
-                    <FaBackward color="#fff" size="10" onClick={() => resetWorkout()}/>
+                <button onClick={()  => resetWorkout()}>
+                    <FaStop color="#fff" size="10" />
                 </button>
-                <button>
+                <button className="workout__timer">
                     Training: <time>{timer.toFixed(2)}</time>
                 </button>
                 <button  onClick={()  => toggleWorkout()}>
@@ -125,25 +126,19 @@ export const Target = (props) => {
         <section className="target" id="home">
             <audio controls={true} src="/threejs/budoka/song.mp3" ref={refAudio} onPlay={onPlaying}></audio>
 
-            <Leva hideTitleBar={true}
-                  collapsed={true}
-                  hidden={true}/>
-
             <div className="target__container">
 
                 <Canvas className="target__canvas" ref={refCanvas}>
                     <Suspense fallback={<Loading/>}>
                         <PerspectiveCamera makeDefault position={[0, 0, 30]}/>
                         <TargetCamera isRotating={isRotating}>
-
-                            <group position={[controls.positionX, controls.positionY, 0]} scale={controls.scale}
+                            <group position={[-1, 0, 0]} scale={1}
                                    ref={refGroup}>
 
                                 <BudokaAvatar scale={8}
                                               position={[1, -6, 0]}
                                               rotation={[0, 0, 0]}/>
-
-
+                                <Meshes position={[5, 0, 0]} />
                                 {hitMeshPoints.map((hitMeshPoint, index) => (
                                     <mesh
                                         key={index}
@@ -163,6 +158,7 @@ export const Target = (props) => {
                                         </Text>
                                     </mesh>
                                 ))}
+
                             </group>
                         </TargetCamera>
                         <ambientLight intensity={1}/>

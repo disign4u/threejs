@@ -29,25 +29,36 @@
 .workout {
   display: inline-flex;
   align-items: center;
-  gap: 0.1em;
-}
-.workout button {
-  min-height: 40px;
-  min-width: 30px;
+  gap: 0.4em;
 }
 .workout time {
   min-width: 45px;
 }
+.workout__timer {
+  pointer-events: none;
+  user-select: none;
+}
 button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 30px;
   gap: 0.25em;
   padding: 0.5em;
   color: orange;
   text-decoration: none;
+  background: #242424;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  appearance: none;
 }
 button:focus {
   outline: 1px solid orange;
+}
+button svg {
+  pointer-events: none;
 }
 audio {
   position: fixed;
