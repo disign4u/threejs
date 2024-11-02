@@ -44,3 +44,92 @@ git config http.postBuffer 524288000
 followed by
 
 git pull && git push
+
+
+import React, {useState, useRef, useEffect} from 'react'
+import {Canvas, useFrame} from "@react-three/fiber";
+import {OrbitControls, PerspectiveCamera} from '@react-three/drei'
+import {gsap} from "gsap";
+import Stoppuhr from "./components/stoppuhr/Stoppuhr.jsx";
+import Musik from "./components/Musik/Musik.jsx";
+import {hitMeshPoints} from "./constants/index.js";
+import './Budoka.css'
+
+let meshes = []; // Array für die Meshes
+
+const Target = ({position}) => {
+const meshRef = useRef();
+
+    useEffect(() => {
+        gsap.to(meshRef.current.scale, {
+            x: 0,
+            y: 0,
+            z: 0,
+            opacity: 1,
+            duration: 0.5, // Anpassbar an die Schwierigkeit
+            repeat: 1,
+            yoyo: true,
+            delay: Math.random() * 2 // Zufälliger Startzeitpunkt
+        });
+    }, []);
+
+    return (
+        <mesh ref={meshRef} position={position} scale={.2}>
+            <sphereGeometry args={[2, 12, 12]}/>
+            <meshStandardMaterial color="red"/>
+        </mesh>
+    );
+}
+
+const Budoka = () => {
+const [count, setCount] = useState(0);
+const meshGroup = useRef();
+const workout = new Audio("sounds/workout.mp3");
+
+    useEffect(() => {
+        console.clear();
+
+    }, []);
+
+    const getMeshes = () => {
+        if (meshGroup.current) {
+            meshes = meshGroup.current.children.filter((child) => child.type === 'Mesh');
+        }
+    }
+
+    const objShake = (mesh_id) => {
+        if(!meshes.length) getMeshes();
+
+        const obj = meshes[mesh_id];
+        if (obj) {
+            gsap.to(obj.scale, {
+                x: 1,
+                y: 1,
+                z: 1,
+                opacity: 1,
+                duration: 0.25, // Anpassbar an die Schwierigkeit
+                repeat: 1,
+                yoyo: true,
+                delay: 0
+            });
+        }
+    }
+    return (
+        <div className="App">
+            <button onClick={() => objShake(1)}>Shake</button>
+            <Canvas>
+                <PerspectiveCamera makeDefault position={[0, 0, 30]}/>
+                <ambientLight intensity={0.5}/>
+                <directionalLight position={[10, 10, 10]} intensity={3}/>
+                <OrbitControls/>
+                <group ref={meshGroup}>
+                    {hitMeshPoints.map((hitMeshPoint, index) => (
+                        <Target position={hitMeshPoint.position} key={index}/>
+                    ))}
+                </group>
+            </Canvas>
+        </div>
+    )
+}
+
+export default Budoka
